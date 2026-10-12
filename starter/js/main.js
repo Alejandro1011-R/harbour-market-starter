@@ -2,16 +2,35 @@
 import { state, toggleSaved } from "./state.js";
 import { save, load } from "./storage.js";
 import { render } from "./render.js";
+import { getJSON } from "./api.js";
 import { setupMenu } from "./menu.js";
 import { setupTickets } from "./tickets.js";
 
 const filters = document.querySelector(".filters");
 const list = document.querySelector(".vendor-list");
+const statusLine = document.querySelector(".finder .status");
+const retry = document.querySelector(".load-error button");
 
 // Every change goes through here: draw, then remember
 function update() {
   render();
   save();
+}
+
+// GET /stalls into state: loading, then ready or error, drawn each time
+async function loadStalls() {
+  state.status = "loading";
+  state.error = null;
+  render();
+  try {
+    state.stalls = await getJSON("/stalls");
+    state.status = "ready";
+  } catch (error) {
+    console.error(error);
+    state.error = error;
+    state.status = "error";
+  }
+  render();
 }
 
 filters.addEventListener("click", (event) => {
@@ -34,7 +53,13 @@ list.addEventListener("click", (event) => {
   update();
 });
 
+// Try again hides itself while loading: move focus somewhere that stays
+retry.addEventListener("click", () => {
+  statusLine.focus();
+  loadStalls();
+});
+
 setupMenu();
 setupTickets();
 load();
-render();
+await loadStalls();
