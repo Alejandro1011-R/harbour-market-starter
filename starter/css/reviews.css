@@ -1,0 +1,158 @@
+/* ==========================================================================
+   Issue #1 · Reviews: the Reviews button on a card and the reviews dialog.
+     .open-reviews                      the button on every card
+     .reviews-dialog                    one <dialog> for every stall
+     .reviews-error > p + button        the load error and Try again
+     .review-form .field-error          a 422 message under its field
+   ========================================================================== */
+
+/* the card: link on the left, Reviews and ♡ together on the right,
+   on a line of their own when the card is too narrow for all three */
+.card-actions { flex-wrap: wrap; row-gap: 0.6rem; }
+.card-actions .card-link { white-space: nowrap; }
+.card-buttons { display: flex; gap: 0.5rem; margin-left: auto; }
+.card-actions .open-reviews {
+  font: 700 0.85rem/1 ui-monospace, Menlo, monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--sea);
+  background: transparent;
+  border: 2px solid var(--line);
+  border-radius: 99px;
+  min-height: 2.75rem;
+  padding: 0 0.9rem;
+  cursor: pointer;
+}
+.card-actions .open-reviews:hover { border-color: var(--sea); }
+.card-actions .open-reviews:focus-visible { outline: 3px solid var(--sea); outline-offset: 2px; }
+
+/* ---------- the dialog ---------- */
+.reviews-dialog {
+  width: min(36rem, 100% - 2rem);
+  max-height: min(48rem, 100dvh - 2rem);
+  overflow: auto;
+  padding: 1.4rem 1.5rem 1.6rem;
+  color: var(--ink);
+  background: var(--night-2);
+  border: 2px solid var(--line);
+  border-radius: var(--radius);
+}
+.reviews-dialog::backdrop { background: rgb(8 10 15 / 0.7); }
+
+/* in: fade and grow from close by, quick ease-out · out: shorter, ease-in */
+.reviews-dialog {
+  transition:
+    opacity 0.14s ease-in,
+    transform 0.14s ease-in,
+    overlay 0.14s ease-in allow-discrete,
+    display 0.14s ease-in allow-discrete;
+}
+.reviews-dialog:not([open]) { opacity: 0; transform: scale(0.97); }
+.reviews-dialog[open] {
+  transition-duration: 0.22s;
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+@starting-style {
+  .reviews-dialog[open] { opacity: 0; transform: scale(0.97); }
+}
+/* less motion: keep the fade, drop the growing */
+@media (prefers-reduced-motion: reduce) {
+  .reviews-dialog:not([open]) { transform: none; }
+  @starting-style {
+    .reviews-dialog[open] { transform: none; }
+  }
+}
+
+.reviews-head { display: flex; align-items: start; justify-content: space-between; gap: 1rem; }
+.reviews-head h2 { margin: 0; font-size: 1.6rem; }
+.reviews-close {
+  flex: none;
+  min-width: 2.75rem;
+  min-height: 2.75rem;
+  font: 700 1.1rem/1 system-ui, sans-serif;
+  color: var(--ink);
+  background: var(--night-3);
+  border: 2px solid var(--line);
+  border-radius: 99px;
+  cursor: pointer;
+}
+.reviews-close:hover { border-color: var(--ink-2); }
+.reviews-dialog button:focus-visible { outline: 3px solid var(--sea); outline-offset: 2px; }
+
+.reviews-status { margin: 0.6rem 0 1rem; color: var(--ink-2); font-size: 0.9rem; }
+.reviews-status:focus { outline: none; }
+
+/* the load error: a box only while there is something to retry */
+.reviews-error:has(button:not([hidden])) {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 0.8rem 1.2rem;
+  border: 2px solid var(--ember); border-radius: 12px;
+  padding: 1rem 1.2rem; margin: 0 0 1rem;
+  background: color-mix(in srgb, var(--ember) 12%, var(--night-2));
+}
+.reviews-error p { margin: 0; }
+
+.reviews-dialog .reviews-error button,
+.review-form [type="submit"] {
+  font: 800 1rem "Bricolage Grotesque", system-ui, sans-serif;
+  color: var(--night);
+  background: var(--lantern);
+  border: 0;
+  border-radius: 99px;
+  padding: 0.75rem 1.4rem;
+  cursor: pointer;
+}
+.review-form [type="submit"]:disabled { opacity: 0.6; cursor: progress; }
+
+/* ---------- the reviews ---------- */
+.reviews-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.8rem; }
+.reviews-list[aria-busy="true"] { min-height: 3rem; }
+.review {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.3rem 1rem;
+  padding: 0.9rem 1rem;
+  background: var(--night);
+  border: 2px solid var(--line);
+  border-radius: 12px;
+}
+.review-head { margin: 0; display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.2rem 0.7rem; }
+.review-stars { color: var(--lantern); letter-spacing: 0.1em; }
+.review time { color: var(--ink-2); font-size: 0.85rem; }
+.review-text { grid-column: 1 / -1; margin: 0; overflow-wrap: anywhere; }
+.review-delete {
+  grid-column: 2; grid-row: 1;
+  align-self: start;
+  font: 700 0.8rem/1 ui-monospace, Menlo, monospace;
+  color: var(--ember);
+  background: transparent;
+  border: 2px solid var(--line);
+  border-radius: 99px;
+  padding: 0.5rem 0.8rem;
+  cursor: pointer;
+}
+.review-delete:hover { border-color: var(--ember); }
+.review-delete:disabled { opacity: 0.6; cursor: progress; }
+
+/* ---------- the form ---------- */
+.review-form { margin-top: 1.5rem; padding-top: 1.2rem; border-top: 2px solid var(--line); display: grid; }
+.review-form h3 { margin: 0 0 0.4rem; font-size: 1.2rem; }
+.review-form label { font-weight: 700; margin: 0.8rem 0 0.35rem; }
+.review-form input,
+.review-form select,
+.review-form textarea {
+  width: 100%;
+  font: inherit;
+  color: var(--ink);
+  background: var(--night);
+  border: 2px solid var(--line);
+  border-radius: 8px;
+  padding: 0.6rem 0.8rem;
+}
+.review-form textarea { resize: vertical; }
+.review-form [aria-invalid="true"] { border-color: var(--ember); }
+.review-form .hint { margin: 0.3rem 0 0; color: var(--ink-2); font-size: 0.85rem; }
+.review-form .field-error { margin: 0.3rem 0 0; color: var(--ember); font-size: 0.9rem; }
+.review-form .field-error:empty { display: none; }
+.review-form .form-error { margin: 1rem 0 0; color: var(--ember); }
+.review-form .form-error:empty { display: none; }
+.review-form [type="submit"] { justify-self: start; margin-top: 1.2rem; }
