@@ -10,6 +10,13 @@ const search = document.querySelector("#vendor-search");
 const errorMessage = document.querySelector(".load-error p");
 const retry = document.querySelector(".load-error button");
 
+// "★ 4.7 · 3 reviews", or "no reviews yet"
+function rating(stall) {
+  if (!stall.reviewCount) return "no reviews yet";
+  const reviews = stall.reviewCount === 1 ? "review" : "reviews";
+  return `★ ${stall.rating.toFixed(1)} · ${stall.reviewCount} ${reviews}`;
+}
+
 // Data in, element out
 function card(stall) {
   const li = template.content.firstElementChild.cloneNode(true);
@@ -24,6 +31,7 @@ function card(stall) {
   li.querySelector("h3").textContent = stall.name;
   li.querySelector(".blurb").textContent = stall.blurb;
   li.querySelector(".price").textContent = stall.price === 0 ? "free" : `from €${stall.price}`;
+  li.querySelector(".rating").textContent = rating(stall);
   li.querySelector(".badge").hidden = !stall.soldOut;
 
   const isSaved = state.saved.has(stall.id);
