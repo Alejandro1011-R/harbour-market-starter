@@ -211,9 +211,12 @@ async function postReview() {
     mine.add(review.id);
     saveMine();
     if (id === reviews.stallId) {
-      if (reviews.status === "ready") reviews.items.unshift(review);
       reviews.notice = "Thanks, your review is up.";
       form.reset();
+      // The list is on screen: add the review to it. It failed or is still
+      // loading: load it again, and the new review comes with it.
+      if (reviews.status === "ready") reviews.items.unshift(review);
+      else loadReviews();
     }
     refreshStall(id);
   } catch (error) {
